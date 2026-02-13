@@ -3,11 +3,503 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Mi Web - Surge + GitHub Actions</title>
+  <title>Primer Parcial • Electiva 2</title>
+  <meta name="description" content="Página demo con UI moderna para despliegue automático con GitHub Actions + Surge." />
+
+  <style>
+    :root{
+      --bg1:#070A12;
+      --bg2:#0B1630;
+      --card: rgba(255,255,255,.08);
+      --card2: rgba(255,255,255,.10);
+      --stroke: rgba(255,255,255,.14);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.68);
+      --accent:#7C5CFF;
+      --accent2:#2DE2E6;
+      --shadow: 0 20px 60px rgba(0,0,0,.45);
+      --radius: 18px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background:
+        radial-gradient(1200px 700px at 15% 20%, rgba(124,92,255,.45), transparent 60%),
+        radial-gradient(900px 600px at 85% 30%, rgba(45,226,230,.35), transparent 60%),
+        radial-gradient(900px 700px at 50% 90%, rgba(255,92,145,.20), transparent 60%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+      overflow-x:hidden;
+    }
+
+    /* subtle noise */
+    body:before{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.08'/%3E%3C/svg%3E");
+      mix-blend-mode: overlay;
+    }
+
+    .wrap{
+      max-width:1100px;
+      margin:0 auto;
+      padding:28px 18px 60px;
+    }
+
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom:20px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      text-decoration:none;
+      color:inherit;
+    }
+
+    .logo{
+      width:42px;height:42px;
+      border-radius:14px;
+      background:
+        radial-gradient(12px 12px at 30% 30%, rgba(255,255,255,.9), transparent 60%),
+        linear-gradient(135deg, var(--accent), var(--accent2));
+      box-shadow: 0 12px 30px rgba(124,92,255,.25);
+      border:1px solid rgba(255,255,255,.22);
+    }
+
+    .brand h1{
+      font-size:15px;
+      margin:0;
+      letter-spacing:.6px;
+      text-transform:uppercase;
+    }
+    .brand p{
+      margin:2px 0 0;
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    nav{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .chip{
+      padding:10px 12px;
+      border-radius:999px;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.05);
+      color: var(--muted);
+      font-size:12px;
+      text-decoration:none;
+      transition: transform .15s ease, background .15s ease, color .15s ease;
+      backdrop-filter: blur(10px);
+    }
+    .chip:hover{
+      transform: translateY(-1px);
+      background: rgba(255,255,255,.10);
+      color: var(--text);
+    }
+
+    .hero{
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap:18px;
+      margin-top:18px;
+      align-items:stretch;
+    }
+
+    .card{
+      background: linear-gradient(180deg, var(--card), rgba(255,255,255,.04));
+      border:1px solid var(--stroke);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+      overflow:hidden;
+      position:relative;
+    }
+
+    .card:after{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background: radial-gradient(700px 200px at 10% 0%, rgba(124,92,255,.18), transparent 55%),
+                  radial-gradient(600px 220px at 90% 0%, rgba(45,226,230,.14), transparent 55%);
+      pointer-events:none;
+    }
+
+    .hero-main{ padding:28px; }
+    .kicker{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:8px 12px;
+      border:1px solid var(--stroke);
+      border-radius:999px;
+      background: rgba(255,255,255,.06);
+      color: var(--muted);
+      font-size:12px;
+      width:fit-content;
+      position:relative;
+      z-index:1;
+    }
+    .dot{
+      width:8px;height:8px;border-radius:50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      box-shadow: 0 0 18px rgba(45,226,230,.35);
+    }
+
+    .hero-title{
+      font-size:42px;
+      line-height:1.04;
+      margin:14px 0 10px;
+      letter-spacing:-.8px;
+      position:relative;
+      z-index:1;
+    }
+    .hero-title span{
+      background: linear-gradient(135deg, rgba(124,92,255,.95), rgba(45,226,230,.95));
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+    }
+
+    .hero-desc{
+      margin:0;
+      color:var(--muted);
+      font-size:15px;
+      line-height:1.6;
+      max-width:58ch;
+      position:relative;
+      z-index:1;
+    }
+
+    .cta{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top:18px;
+      position:relative;
+      z-index:1;
+    }
+
+    .btn{
+      cursor:pointer;
+      border:none;
+      border-radius:14px;
+      padding:12px 14px;
+      font-weight:650;
+      letter-spacing:.2px;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      transition: transform .15s ease, filter .15s ease;
+      user-select:none;
+    }
+    .btn:active{ transform: translateY(1px); }
+
+    .btn-primary{
+      color:#061018;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      box-shadow: 0 14px 28px rgba(124,92,255,.18);
+    }
+    .btn-primary:hover{ filter: brightness(1.05); }
+
+    .btn-ghost{
+      color: var(--text);
+      background: rgba(255,255,255,.06);
+      border:1px solid var(--stroke);
+      backdrop-filter: blur(14px);
+    }
+    .btn-ghost:hover{ filter: brightness(1.08); }
+
+    .hero-side{ padding:22px; display:flex; flex-direction:column; gap:12px; }
+    .side-top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+      position:relative;
+      z-index:1;
+    }
+    .badge{
+      padding:8px 10px;
+      border:1px solid var(--stroke);
+      border-radius:999px;
+      background: rgba(255,255,255,.06);
+      color: var(--muted);
+      font-size:12px;
+      width:fit-content;
+    }
+    .metric{
+      margin-top:8px;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      position:relative;
+      z-index:1;
+    }
+    .mini{
+      padding:14px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+    }
+    .mini h3{ margin:0; font-size:14px; }
+    .mini p{ margin:6px 0 0; font-size:12px; color: var(--muted); line-height:1.5; }
+
+    .progress{
+      margin-top:auto;
+      padding:16px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      position:relative;
+      z-index:1;
+    }
+    .bar{
+      height:10px;
+      border-radius:999px;
+      background: rgba(255,255,255,.12);
+      overflow:hidden;
+      margin-top:10px;
+    }
+    .bar > div{
+      height:100%;
+      width:72%;
+      border-radius:999px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      box-shadow: 0 0 22px rgba(45,226,230,.25);
+      animation: load 1.2s ease both;
+    }
+    @keyframes load { from{width:0%} to{width:72%} }
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:14px;
+      margin-top:18px;
+    }
+    .feature{
+      padding:18px;
+      border-radius: var(--radius);
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      transition: transform .18s ease, background .18s ease;
+      position:relative;
+      overflow:hidden;
+    }
+    .feature:before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background: radial-gradient(300px 120px at 20% 0%, rgba(124,92,255,.18), transparent 60%),
+                  radial-gradient(260px 120px at 80% 0%, rgba(45,226,230,.12), transparent 60%);
+      opacity:.8;
+      pointer-events:none;
+    }
+    .feature:hover{
+      transform: translateY(-2px);
+      background: rgba(255,255,255,.08);
+    }
+    .icon{
+      width:38px;height:38px;
+      border-radius:14px;
+      display:grid;
+      place-items:center;
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.08);
+      position:relative;
+      z-index:1;
+    }
+    .feature h4{
+      margin:12px 0 6px;
+      font-size:14px;
+      position:relative;
+      z-index:1;
+    }
+    .feature p{
+      margin:0;
+      font-size:12.5px;
+      color:var(--muted);
+      line-height:1.55;
+      position:relative;
+      z-index:1;
+    }
+
+    footer{
+      margin-top:26px;
+      padding:14px 2px 0;
+      color: rgba(255,255,255,.55);
+      font-size:12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .pill{
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.68);
+    }
+
+    /* responsive */
+    @media (max-width: 920px){
+      .hero{ grid-template-columns: 1fr; }
+      .hero-title{ font-size: 38px; }
+      .grid{ grid-template-columns: 1fr; }
+      nav{ justify-content:flex-start; }
+    }
+  </style>
 </head>
-<body style="font-family: Arial, sans-serif; padding: 24px;">
-  <h1>✅ Deploy automatico a Surge</h1>
-  <p>Este sitio se despliega automáticamente con GitHub Actions.</p>
+
+<body>
+  <div class="wrap">
+    <header>
+      <a class="brand" href="#">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Electiva 2 • Deploy</h1>
+          <p>GitHub Actions + Surge.sh</p>
+        </div>
+      </a>
+
+      <nav>
+        <a class="chip" href="#features">Características</a>
+        <a class="chip" href="#status">Estado</a>
+        <a class="chip" href="#about">Sobre</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div class="card hero-main">
+        <div class="kicker"><span class="dot"></span> Proyecto listo para CI/CD</div>
+
+        <h2 class="hero-title">
+          Una página <span>hermosa</span> para tu entrega ✅
+        </h2>
+
+        <p class="hero-desc">
+          Esta landing está hecha solo con HTML + CSS (sin frameworks), es responsive, moderna y se ve
+          profesional. Perfecta para demostrar el despliegue automático con GitHub Actions hacia Surge.
+        </p>
+
+        <div class="cta">
+          <a class="btn btn-primary" href="#features">
+            🚀 Ver características
+          </a>
+          <a class="btn btn-ghost" href="#about">
+            ✨ Ver detalles
+          </a>
+        </div>
+
+        <div id="features" class="grid" aria-label="Características">
+          <div class="feature">
+            <div class="icon">⚡</div>
+            <h4>Despliegue automático</h4>
+            <p>Con cada push a <b>main</b>, GitHub Actions publica tu sitio en Surge sin pasos manuales.</p>
+          </div>
+
+          <div class="feature">
+            <div class="icon">🔐</div>
+            <h4>Secrets protegidos</h4>
+            <p>Tu token de Surge vive en GitHub Secrets. Nada de claves expuestas en el repositorio.</p>
+          </div>
+
+          <div class="feature">
+            <div class="icon">📱</div>
+            <h4>Diseño responsive</h4>
+            <p>Se adapta a móvil y desktop, con tipografía limpia, cards y gradientes suaves.</p>
+          </div>
+        </div>
+      </div>
+
+      <aside class="card hero-side" id="status">
+        <div class="side-top">
+          <div>
+            <div class="badge">Estado del proyecto</div>
+            <h3 style="margin:10px 0 0; font-size:18px; position:relative; z-index:1;">
+              ✅ Online & Deployable
+            </h3>
+            <p style="margin:8px 0 0; color:var(--muted); font-size:13px; line-height:1.55; position:relative; z-index:1;">
+              Si estás viendo esto, tu contenido está listo para ser servido desde Surge.
+            </p>
+          </div>
+          <div class="badge">2026 • ITLA</div>
+        </div>
+
+        <div class="metric">
+          <div class="mini">
+            <h3>Branch</h3>
+            <p><b>main</b> (deploy on push)</p>
+          </div>
+          <div class="mini">
+            <h3>Stack</h3>
+            <p>HTML + CSS</p>
+          </div>
+          <div class="mini">
+            <h3>CDN</h3>
+            <p>Surge Edge</p>
+          </div>
+          <div class="mini">
+            <h3>Workflow</h3>
+            <p>GitHub Actions</p>
+          </div>
+        </div>
+
+        <div class="progress">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+            <div>
+              <div style="font-weight:700;">Progreso de entrega</div>
+              <div style="color:var(--muted); font-size:12px; margin-top:4px;">Repo • Secrets • Deploy</div>
+            </div>
+            <div class="pill">72%</div>
+          </div>
+          <div class="bar"><div></div></div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="card" id="about" style="margin-top:18px; padding:22px;">
+      <h3 style="margin:0 0 10px; font-size:18px; position:relative; z-index:1;">Sobre esta página</h3>
+      <p style="margin:0; color:var(--muted); line-height:1.7; font-size:14px; position:relative; z-index:1;">
+        Esta página está pensada para que tu profesor vea contenido real, una UI atractiva y una estructura clara.
+        Puedes cambiar el texto por cualquier tema (tienda, portafolio, app, evento). Lo importante es que el
+        pipeline de CI/CD funcione: <b>push → GitHub Actions → Surge</b>.
+      </p>
+
+      <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap; position:relative; z-index:1;">
+        <span class="pill">✅ UI moderna</span>
+        <span class="pill">✅ Sin dependencias</span>
+        <span class="pill">✅ Rápido y ligero</span>
+        <span class="pill">✅ Listo para deploy</span>
+      </div>
+    </section>
+
+    <footer>
+      <div>© <span id="year"></span> • Deploy Demo • Hecho con HTML + CSS</div>
+      <div class="pill">Tip: usa dominio <b>*.surge.sh</b> para evitar DNS</div>
+    </footer>
+  </div>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
-EOF
