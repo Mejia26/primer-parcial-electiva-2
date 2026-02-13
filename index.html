@@ -1,505 +1,1008 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Primer Parcial • Electiva 2</title>
-  <meta name="description" content="Página demo con UI moderna para despliegue automático con GitHub Actions + Surge." />
-
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="dark light"/>
+  <title>ToSend — Cápsula del tiempo inteligente</title>
+  <meta name="description" content="ToSend: redacta hoy, entrega mañana. Programación a largo plazo (hasta 100 años) con envío condicional y seguridad de nivel industrial."/>
   <style>
+    /* -----------------------------
+      ToSend — Production-ready UI
+      No external deps. Accessible. Responsive.
+    ------------------------------ */
     :root{
-      --bg1:#070A12;
-      --bg2:#0B1630;
-      --card: rgba(255,255,255,.08);
+      --bg0:#070812;
+      --bg1:#0A0F22;
+      --bg2:#0B1833;
+      --card: rgba(255,255,255,.07);
       --card2: rgba(255,255,255,.10);
       --stroke: rgba(255,255,255,.14);
       --text: rgba(255,255,255,.92);
       --muted: rgba(255,255,255,.68);
-      --accent:#7C5CFF;
-      --accent2:#2DE2E6;
-      --shadow: 0 20px 60px rgba(0,0,0,.45);
-      --radius: 18px;
+      --soft: rgba(255,255,255,.10);
+
+      --p1:#7C5CFF;
+      --p2:#2DE2E6;
+      --p3:#FF5C91;
+      --ok:#33D17A;
+      --warn:#FFCC66;
+
+      --shadow: 0 26px 75px rgba(0,0,0,.52);
+      --radius: 20px;
+      --radius2: 28px;
+      --max: 1180px;
+
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
     }
 
-    *{box-sizing:border-box}
-    html,body{height:100%}
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
     body{
       margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
-      color:var(--text);
+      font-family: var(--font);
+      color: var(--text);
       background:
-        radial-gradient(1200px 700px at 15% 20%, rgba(124,92,255,.45), transparent 60%),
-        radial-gradient(900px 600px at 85% 30%, rgba(45,226,230,.35), transparent 60%),
-        radial-gradient(900px 700px at 50% 90%, rgba(255,92,145,.20), transparent 60%),
-        linear-gradient(180deg, var(--bg1), var(--bg2));
+        radial-gradient(1100px 700px at 12% 16%, rgba(124,92,255,.45), transparent 62%),
+        radial-gradient(950px 680px at 86% 28%, rgba(45,226,230,.30), transparent 62%),
+        radial-gradient(1000px 780px at 50% 96%, rgba(255,92,145,.20), transparent 62%),
+        linear-gradient(180deg, var(--bg0), var(--bg2));
       overflow-x:hidden;
     }
 
-    /* subtle noise */
+    /* subtle film grain */
     body:before{
       content:"";
       position:fixed;
       inset:0;
       pointer-events:none;
-      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.08'/%3E%3C/svg%3E");
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.08'/%3E%3C/svg%3E");
       mix-blend-mode: overlay;
+      opacity:.9;
     }
 
-    .wrap{
-      max-width:1100px;
+    a{ color:inherit; }
+    .container{
+      max-width: var(--max);
       margin:0 auto;
-      padding:28px 18px 60px;
+      padding: 26px 18px 70px;
+      position:relative;
     }
 
-    header{
+    /* top nav */
+    .nav{
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:16px;
-      margin-bottom:20px;
+      gap:14px;
+      padding: 14px 14px;
+      border:1px solid var(--stroke);
+      border-radius: 999px;
+      background: rgba(255,255,255,.05);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 18px 60px rgba(0,0,0,.25);
+      position: sticky;
+      top: 14px;
+      z-index: 20;
     }
-
     .brand{
       display:flex;
       align-items:center;
       gap:12px;
       text-decoration:none;
-      color:inherit;
+      padding: 6px 10px;
+      border-radius: 999px;
     }
-
-    .logo{
-      width:42px;height:42px;
+    .mark{
+      width:40px;height:40px;
       border-radius:14px;
       background:
-        radial-gradient(12px 12px at 30% 30%, rgba(255,255,255,.9), transparent 60%),
-        linear-gradient(135deg, var(--accent), var(--accent2));
-      box-shadow: 0 12px 30px rgba(124,92,255,.25);
+        radial-gradient(14px 14px at 32% 30%, rgba(255,255,255,.95), transparent 58%),
+        linear-gradient(135deg, var(--p1), var(--p2));
       border:1px solid rgba(255,255,255,.22);
+      box-shadow: 0 14px 30px rgba(124,92,255,.22);
+      position:relative;
+      overflow:hidden;
     }
+    .mark:after{
+      content:"";
+      position:absolute;
+      inset:-40%;
+      background: conic-gradient(from 180deg, rgba(255,255,255,.0), rgba(255,255,255,.35), rgba(255,255,255,.0));
+      transform: rotate(18deg);
+      opacity:.35;
+      animation: sheen 8s linear infinite;
+    }
+    @keyframes sheen { 0%{transform:translateX(-30%) rotate(18deg)} 100%{transform:translateX(30%) rotate(18deg)} }
 
-    .brand h1{
-      font-size:15px;
-      margin:0;
-      letter-spacing:.6px;
+    .brand .t{
+      display:flex;
+      flex-direction:column;
+      line-height:1.05;
+    }
+    .brand .t strong{
+      font-size:13px;
+      letter-spacing:.65px;
       text-transform:uppercase;
     }
-    .brand p{
-      margin:2px 0 0;
+    .brand .t span{
       font-size:12px;
-      color:var(--muted);
+      color: var(--muted);
+      margin-top:3px;
+      letter-spacing:.2px;
     }
 
-    nav{
+    .navlinks{
       display:flex;
       gap:10px;
       flex-wrap:wrap;
       justify-content:flex-end;
-    }
-
-    .chip{
-      padding:10px 12px;
-      border-radius:999px;
-      border:1px solid var(--stroke);
-      background: rgba(255,255,255,.05);
-      color: var(--muted);
-      font-size:12px;
-      text-decoration:none;
-      transition: transform .15s ease, background .15s ease, color .15s ease;
-      backdrop-filter: blur(10px);
-    }
-    .chip:hover{
-      transform: translateY(-1px);
-      background: rgba(255,255,255,.10);
-      color: var(--text);
-    }
-
-    .hero{
-      display:grid;
-      grid-template-columns: 1.15fr .85fr;
-      gap:18px;
-      margin-top:18px;
-      align-items:stretch;
-    }
-
-    .card{
-      background: linear-gradient(180deg, var(--card), rgba(255,255,255,.04));
-      border:1px solid var(--stroke);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(14px);
-      overflow:hidden;
-      position:relative;
-    }
-
-    .card:after{
-      content:"";
-      position:absolute;
-      inset:-2px;
-      background: radial-gradient(700px 200px at 10% 0%, rgba(124,92,255,.18), transparent 55%),
-                  radial-gradient(600px 220px at 90% 0%, rgba(45,226,230,.14), transparent 55%);
-      pointer-events:none;
-    }
-
-    .hero-main{ padding:28px; }
-    .kicker{
-      display:inline-flex;
       align-items:center;
-      gap:10px;
-      padding:8px 12px;
-      border:1px solid var(--stroke);
-      border-radius:999px;
-      background: rgba(255,255,255,.06);
-      color: var(--muted);
+    }
+    .chip{
+      text-decoration:none;
       font-size:12px;
-      width:fit-content;
-      position:relative;
-      z-index:1;
+      color: var(--muted);
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,.05);
+      transition: transform .15s ease, background .15s ease, color .15s ease;
+      outline: none;
     }
-    .dot{
-      width:8px;height:8px;border-radius:50%;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      box-shadow: 0 0 18px rgba(45,226,230,.35);
-    }
-
-    .hero-title{
-      font-size:42px;
-      line-height:1.04;
-      margin:14px 0 10px;
-      letter-spacing:-.8px;
-      position:relative;
-      z-index:1;
-    }
-    .hero-title span{
-      background: linear-gradient(135deg, rgba(124,92,255,.95), rgba(45,226,230,.95));
-      -webkit-background-clip:text;
-      background-clip:text;
-      color:transparent;
-    }
-
-    .hero-desc{
-      margin:0;
-      color:var(--muted);
-      font-size:15px;
-      line-height:1.6;
-      max-width:58ch;
-      position:relative;
-      z-index:1;
-    }
-
-    .cta{
-      display:flex;
-      gap:12px;
-      flex-wrap:wrap;
-      margin-top:18px;
-      position:relative;
-      z-index:1;
-    }
+    .chip:hover{ transform: translateY(-1px); background: rgba(255,255,255,.10); color: var(--text); }
+    .chip:focus-visible{ box-shadow: 0 0 0 3px rgba(45,226,230,.25); }
 
     .btn{
       cursor:pointer;
       border:none;
-      border-radius:14px;
-      padding:12px 14px;
-      font-weight:650;
+      border-radius: 14px;
+      padding: 11px 14px;
+      font-weight: 720;
       letter-spacing:.2px;
       text-decoration:none;
       display:inline-flex;
       align-items:center;
       gap:10px;
-      transition: transform .15s ease, filter .15s ease;
       user-select:none;
+      transition: transform .15s ease, filter .15s ease, background .15s ease;
+      outline:none;
+      white-space:nowrap;
     }
     .btn:active{ transform: translateY(1px); }
+    .btn:focus-visible{ box-shadow: 0 0 0 3px rgba(45,226,230,.25); }
 
     .btn-primary{
       color:#061018;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      box-shadow: 0 14px 28px rgba(124,92,255,.18);
+      background: linear-gradient(135deg, var(--p1), var(--p2));
+      box-shadow: 0 18px 34px rgba(124,92,255,.18);
     }
     .btn-primary:hover{ filter: brightness(1.05); }
-
     .btn-ghost{
       color: var(--text);
       background: rgba(255,255,255,.06);
       border:1px solid var(--stroke);
       backdrop-filter: blur(14px);
     }
-    .btn-ghost:hover{ filter: brightness(1.08); }
+    .btn-ghost:hover{ background: rgba(255,255,255,.10); }
 
-    .hero-side{ padding:22px; display:flex; flex-direction:column; gap:12px; }
-    .side-top{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:14px;
-      position:relative;
-      z-index:1;
+    /* hero */
+    .hero{
+      margin-top: 22px;
+      display:grid;
+      grid-template-columns: 1.12fr .88fr;
+      gap: 18px;
+      align-items:stretch;
     }
-    .badge{
-      padding:8px 10px;
+    .card{
+      background: linear-gradient(180deg, var(--card), rgba(255,255,255,.04));
       border:1px solid var(--stroke);
-      border-radius:999px;
-      background: rgba(255,255,255,.06);
-      color: var(--muted);
-      font-size:12px;
-      width:fit-content;
-    }
-    .metric{
-      margin-top:8px;
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-      position:relative;
-      z-index:1;
-    }
-    .mini{
-      padding:14px;
-      border-radius:16px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.06);
-    }
-    .mini h3{ margin:0; font-size:14px; }
-    .mini p{ margin:6px 0 0; font-size:12px; color: var(--muted); line-height:1.5; }
-
-    .progress{
-      margin-top:auto;
-      padding:16px;
-      border-radius:16px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.06);
-      position:relative;
-      z-index:1;
-    }
-    .bar{
-      height:10px;
-      border-radius:999px;
-      background: rgba(255,255,255,.12);
-      overflow:hidden;
-      margin-top:10px;
-    }
-    .bar > div{
-      height:100%;
-      width:72%;
-      border-radius:999px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      box-shadow: 0 0 22px rgba(45,226,230,.25);
-      animation: load 1.2s ease both;
-    }
-    @keyframes load { from{width:0%} to{width:72%} }
-
-    .grid{
-      display:grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap:14px;
-      margin-top:18px;
-    }
-    .feature{
-      padding:18px;
-      border-radius: var(--radius);
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.06);
-      transition: transform .18s ease, background .18s ease;
+      border-radius: var(--radius2);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
       position:relative;
       overflow:hidden;
     }
-    .feature:before{
+    .card:before{
       content:"";
       position:absolute;
       inset:-2px;
-      background: radial-gradient(300px 120px at 20% 0%, rgba(124,92,255,.18), transparent 60%),
-                  radial-gradient(260px 120px at 80% 0%, rgba(45,226,230,.12), transparent 60%);
-      opacity:.8;
+      background:
+        radial-gradient(820px 260px at 12% 0%, rgba(124,92,255,.18), transparent 62%),
+        radial-gradient(760px 260px at 90% 0%, rgba(45,226,230,.14), transparent 62%);
       pointer-events:none;
+      opacity:.95;
+    }
+
+    .hero-main{ padding: 28px; }
+    .kicker{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,.06);
+      color: var(--muted);
+      font-size: 12px;
+      position:relative;
+      z-index:1;
+      width: fit-content;
+    }
+    .pulse{
+      width:9px;height:9px;
+      border-radius:50%;
+      background: linear-gradient(135deg, var(--p1), var(--p2));
+      box-shadow: 0 0 20px rgba(45,226,230,.35);
+      position:relative;
+    }
+    .pulse:after{
+      content:"";
+      position:absolute;
+      inset:-8px;
+      border-radius:999px;
+      border:1px solid rgba(45,226,230,.25);
+      animation: ping 2.4s ease infinite;
+    }
+    @keyframes ping{
+      0%{ transform: scale(.4); opacity:.65; }
+      70%{ transform: scale(1.2); opacity:0; }
+      100%{ opacity:0; }
+    }
+
+    .title{
+      margin: 14px 0 10px;
+      font-size: 44px;
+      line-height: 1.04;
+      letter-spacing: -1px;
+      position:relative;
+      z-index:1;
+    }
+    .title .grad{
+      background: linear-gradient(135deg, rgba(124,92,255,.98), rgba(45,226,230,.98));
+      -webkit-background-clip:text;
+      background-clip:text;
+      color: transparent;
+    }
+    .subtitle{
+      margin:0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.65;
+      max-width: 64ch;
+      position:relative;
+      z-index:1;
+    }
+
+    .hero-actions{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top: 18px;
+      position:relative;
+      z-index:1;
+    }
+
+    .hero-grid{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 18px;
+      position:relative;
+      z-index:1;
+    }
+    .feature{
+      padding: 16px;
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      transition: transform .18s ease, background .18s ease, border-color .18s ease;
+      position:relative;
+      overflow:hidden;
+      min-height: 116px;
     }
     .feature:hover{
       transform: translateY(-2px);
       background: rgba(255,255,255,.08);
+      border-color: rgba(255,255,255,.18);
     }
     .icon{
-      width:38px;height:38px;
-      border-radius:14px;
+      width: 40px; height: 40px;
+      border-radius: 15px;
       display:grid;
       place-items:center;
       border:1px solid rgba(255,255,255,.18);
       background: rgba(255,255,255,.08);
+      font-size: 18px;
       position:relative;
       z-index:1;
     }
-    .feature h4{
-      margin:12px 0 6px;
-      font-size:14px;
-      position:relative;
-      z-index:1;
+    .feature h3{
+      margin: 10px 0 6px;
+      font-size: 14px;
+      letter-spacing:.2px;
     }
     .feature p{
       margin:0;
-      font-size:12.5px;
-      color:var(--muted);
-      line-height:1.55;
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    /* side panel */
+    .hero-side{
+      padding: 22px;
+      display:flex;
+      flex-direction:column;
+      gap: 12px;
+    }
+    .panel-title{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 12px;
+      position:relative;
+      z-index:1;
+    }
+    .badge{
+      padding: 8px 10px;
+      border-radius: 999px;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.06);
+      color: var(--muted);
+      font-size: 12px;
+      width: fit-content;
+    }
+    .bigstat{
+      margin: 10px 0 0;
+      font-size: 18px;
+      position:relative;
+      z-index:1;
+    }
+    .desc{
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
       position:relative;
       z-index:1;
     }
 
-    footer{
-      margin-top:26px;
-      padding:14px 2px 0;
-      color: rgba(255,255,255,.55);
-      font-size:12px;
+    .timeline{
+      margin-top: 6px;
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      padding: 14px;
+      position:relative;
+      z-index:1;
+    }
+    .timeline .row{
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:10px;
-      flex-wrap:wrap;
+      padding: 10px 0;
+      border-bottom: 1px dashed rgba(255,255,255,.12);
     }
+    .timeline .row:last-child{ border-bottom:none; }
     .pill{
-      padding:8px 10px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.12);
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
       background: rgba(255,255,255,.06);
-      color: rgba(255,255,255,.68);
+      color: rgba(255,255,255,.75);
+      font-size: 12px;
+      white-space:nowrap;
+    }
+    .pill.ok{ border-color: rgba(51,209,122,.28); color: rgba(51,209,122,.90); }
+    .pill.lock{ border-color: rgba(124,92,255,.30); color: rgba(124,92,255,.95); }
+    .pill.safe{ border-color: rgba(45,226,230,.26); color: rgba(45,226,230,.90); }
+
+    .meter{
+      margin-top:auto;
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      padding: 14px;
+      position:relative;
+      z-index:1;
+    }
+    .meter .top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .bar{
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.12);
+      overflow:hidden;
+      margin-top: 10px;
+    }
+    .bar > div{
+      height:100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--p1), var(--p2));
+      box-shadow: 0 0 24px rgba(45,226,230,.25);
+      transition: width 1.2s ease;
+    }
+
+    /* sections */
+    .section{
+      margin-top: 18px;
+      padding: 22px;
+    }
+    .section h2{
+      margin:0;
+      font-size: 18px;
+      letter-spacing:.2px;
+      position:relative;
+      z-index:1;
+    }
+    .section .lead{
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+      position:relative;
+      z-index:1;
+    }
+
+    .split{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 14px;
+      position:relative;
+      z-index:1;
+    }
+    .mini-card{
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      padding: 16px;
+      position:relative;
+      overflow:hidden;
+    }
+    .mini-card h3{
+      margin:0;
+      font-size: 14px;
+    }
+    .mini-card p{
+      margin:8px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .list{
+      margin: 10px 0 0;
+      padding-left: 18px;
+      color: rgba(255,255,255,.78);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+    .list li{ margin: 6px 0; }
+
+    /* pricing */
+    .pricing{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 14px;
+      position:relative;
+      z-index:1;
+    }
+    .price{
+      border-radius: var(--radius2);
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      padding: 18px;
+      position:relative;
+      overflow:hidden;
+      transition: transform .18s ease, background .18s ease, border-color .18s ease;
+    }
+    .price:hover{
+      transform: translateY(-2px);
+      background: rgba(255,255,255,.08);
+      border-color: rgba(255,255,255,.18);
+    }
+    .price.pop{
+      border-color: rgba(45,226,230,.28);
+      box-shadow: 0 24px 70px rgba(45,226,230,.10);
+    }
+    .price .tag{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .price h3{
+      margin: 10px 0 0;
+      font-size: 16px;
+    }
+    .money{
+      margin: 8px 0 0;
+      font-size: 28px;
+      letter-spacing: -0.6px;
+    }
+    .money span{
+      font-size: 12px;
+      color: var(--muted);
+      margin-left: 6px;
+    }
+    .muted{ color: var(--muted); }
+    .divider{
+      height:1px;
+      background: rgba(255,255,255,.12);
+      margin: 12px 0;
+    }
+
+    /* FAQ accordion */
+    .faq{
+      margin-top: 14px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      position:relative;
+      z-index:1;
+    }
+    details{
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      padding: 14px 14px;
+    }
+    summary{
+      cursor:pointer;
+      list-style:none;
+      font-weight: 720;
+      font-size: 13.5px;
+      outline:none;
+    }
+    summary::-webkit-details-marker{ display:none; }
+    details p{
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    /* footer */
+    footer{
+      margin-top: 18px;
+      padding: 18px 2px 0;
+      color: rgba(255,255,255,.58);
+      font-size: 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      flex-wrap:wrap;
+      position:relative;
+      z-index:1;
+    }
+
+    /* floating “time capsule” illustration */
+    .orb{
+      position:absolute;
+      right: -160px;
+      top: 80px;
+      width: 420px;
+      height: 420px;
+      border-radius: 999px;
+      background:
+        radial-gradient(140px 140px at 32% 30%, rgba(255,255,255,.75), transparent 62%),
+        radial-gradient(260px 220px at 60% 70%, rgba(124,92,255,.24), transparent 60%),
+        radial-gradient(260px 220px at 40% 40%, rgba(45,226,230,.20), transparent 62%),
+        radial-gradient(260px 260px at 50% 50%, rgba(255,92,145,.12), transparent 65%),
+        linear-gradient(135deg, rgba(124,92,255,.18), rgba(45,226,230,.10));
+      filter: blur(.2px);
+      border:1px solid rgba(255,255,255,.10);
+      box-shadow: 0 50px 120px rgba(0,0,0,.55);
+      opacity:.9;
+      animation: floaty 7.5s ease-in-out infinite;
+      pointer-events:none;
+      z-index:0;
+    }
+    @keyframes floaty{
+      0%{ transform: translateY(0px) translateX(0px); }
+      50%{ transform: translateY(10px) translateX(-6px); }
+      100%{ transform: translateY(0px) translateX(0px); }
     }
 
     /* responsive */
-    @media (max-width: 920px){
+    @media (max-width: 980px){
       .hero{ grid-template-columns: 1fr; }
-      .hero-title{ font-size: 38px; }
-      .grid{ grid-template-columns: 1fr; }
-      nav{ justify-content:flex-start; }
+      .title{ font-size: 40px; }
+      .hero-grid{ grid-template-columns: 1fr; }
+      .split{ grid-template-columns: 1fr; }
+      .pricing{ grid-template-columns: 1fr; }
+      .faq{ grid-template-columns: 1fr; }
+      .orb{ display:none; }
+    }
+
+    /* reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      *{ animation:none !important; transition:none !important; scroll-behavior:auto !important; }
     }
   </style>
 </head>
 
 <body>
-  <div class="wrap">
-    <header>
-      <a class="brand" href="#">
-        <div class="logo" aria-hidden="true"></div>
-        <div>
-          <h1>Electiva 2 • Deploy</h1>
-          <p>GitHub Actions + Surge.sh</p>
+  <div class="container">
+    <div class="orb" aria-hidden="true"></div>
+
+    <div class="nav" role="navigation" aria-label="Navegación principal">
+      <a class="brand" href="#top" aria-label="Ir al inicio">
+        <div class="mark" aria-hidden="true"></div>
+        <div class="t">
+          <strong>ToSend</strong>
+          <span>Mensajes que esperan el momento perfecto</span>
         </div>
       </a>
 
-      <nav>
-        <a class="chip" href="#features">Características</a>
-        <a class="chip" href="#status">Estado</a>
-        <a class="chip" href="#about">Sobre</a>
-      </nav>
-    </header>
+      <div class="navlinks">
+        <a class="chip" href="#producto">Producto</a>
+        <a class="chip" href="#seguridad">Seguridad</a>
+        <a class="chip" href="#precios">Precios</a>
+        <a class="chip" href="#faq">FAQ</a>
+        <a class="btn btn-primary" href="#cta">Probar demo</a>
+      </div>
+    </div>
 
-    <section class="hero">
-      <div class="card hero-main">
-        <div class="kicker"><span class="dot"></span> Proyecto listo para CI/CD</div>
+    <main id="top" class="hero" aria-label="Sección principal">
+      <section class="card hero-main">
+        <div class="kicker"><span class="pulse"></span> Cápsula del tiempo inteligente • Envío condicional • Hasta 100 años</div>
 
-        <h2 class="hero-title">
-          Una página <span>hermosa</span> para tu entrega ✅
-        </h2>
+        <h1 class="title">
+          Escribe hoy. <span class="grad">Entrega cuando el mundo esté listo.</span>
+        </h1>
 
-        <p class="hero-desc">
-          Esta landing está hecha solo con HTML + CSS (sin frameworks), es responsive, moderna y se ve
-          profesional. Perfecta para demostrar el despliegue automático con GitHub Actions hacia Surge.
+        <p class="subtitle">
+          <b>ToSend</b> es una plataforma en la nube para redactar mensajes y programar su entrega a largo plazo,
+          con reglas que “desbloquean” el envío solo si se cumplen condiciones específicas. Ideal para legados emocionales,
+          información crítica y mensajes al “yo del futuro”. :contentReference[oaicite:1]{index=1}
         </p>
 
-        <div class="cta">
-          <a class="btn btn-primary" href="#features">
-            🚀 Ver características
-          </a>
-          <a class="btn btn-ghost" href="#about">
-            ✨ Ver detalles
-          </a>
+        <div class="hero-actions" aria-label="Acciones principales">
+          <a class="btn btn-primary" href="#cta">🚀 Crear mi primer mensaje</a>
+          <a class="btn btn-ghost" href="#como-funciona">🧩 Ver cómo funciona</a>
         </div>
 
-        <div id="features" class="grid" aria-label="Características">
+        <div class="hero-grid" aria-label="Características destacadas">
           <div class="feature">
-            <div class="icon">⚡</div>
-            <h4>Despliegue automático</h4>
-            <p>Con cada push a <b>main</b>, GitHub Actions publica tu sitio en Surge sin pasos manuales.</p>
+            <div class="icon">🕰️</div>
+            <h3>Programación extrema</h3>
+            <p>Agenda entregas desde semanas hasta <b>100 años</b>. Un mensaje puede ser tu legado.</p>
           </div>
-
           <div class="feature">
-            <div class="icon">🔐</div>
-            <h4>Secrets protegidos</h4>
-            <p>Tu token de Surge vive en GitHub Secrets. Nada de claves expuestas en el repositorio.</p>
+            <div class="icon">🔒</div>
+            <h3>Envío condicional</h3>
+            <p>Define reglas. Si no se cumplen, tu mensaje queda bajo llave digital.</p>
           </div>
-
           <div class="feature">
-            <div class="icon">📱</div>
-            <h4>Diseño responsive</h4>
-            <p>Se adapta a móvil y desktop, con tipografía limpia, cards y gradientes suaves.</p>
+            <div class="icon">🧠</div>
+            <h3>Hecho para humanos</h3>
+            <p>Interfaz simple, enfocada en el usuario común (sin tecnicismos innecesarios).</p>
           </div>
         </div>
-      </div>
+      </section>
 
-      <aside class="card hero-side" id="status">
-        <div class="side-top">
+      <aside class="card hero-side" aria-label="Panel de estado">
+        <div class="panel-title">
           <div>
-            <div class="badge">Estado del proyecto</div>
-            <h3 style="margin:10px 0 0; font-size:18px; position:relative; z-index:1;">
-              ✅ Online & Deployable
-            </h3>
-            <p style="margin:8px 0 0; color:var(--muted); font-size:13px; line-height:1.55; position:relative; z-index:1;">
-              Si estás viendo esto, tu contenido está listo para ser servido desde Surge.
+            <div class="badge">Estado del mensaje</div>
+            <div class="bigstat">✅ Sellado • 🔐 Custodiado • 📩 Listo para el futuro</div>
+            <p class="desc">
+              ToSend actúa como un custodio digital de confianza: entrega privada, directa y en el momento exacto. :contentReference[oaicite:2]{index=2}
             </p>
           </div>
-          <div class="badge">2026 • ITLA</div>
+          <div class="badge">Legacy Tech</div>
         </div>
 
-        <div class="metric">
-          <div class="mini">
-            <h3>Branch</h3>
-            <p><b>main</b> (deploy on push)</p>
-          </div>
-          <div class="mini">
-            <h3>Stack</h3>
-            <p>HTML + CSS</p>
-          </div>
-          <div class="mini">
-            <h3>CDN</h3>
-            <p>Surge Edge</p>
-          </div>
-          <div class="mini">
-            <h3>Workflow</h3>
-            <p>GitHub Actions</p>
-          </div>
-        </div>
-
-        <div class="progress">
-          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+        <div class="timeline" aria-label="Línea de tiempo del flujo">
+          <div class="row">
             <div>
-              <div style="font-weight:700;">Progreso de entrega</div>
-              <div style="color:var(--muted); font-size:12px; margin-top:4px;">Repo • Secrets • Deploy</div>
+              <div style="font-weight:800;">1) Redactas</div>
+              <div class="muted" style="font-size:12px;margin-top:3px;">Texto, archivos, destinatarios</div>
             </div>
-            <div class="pill">72%</div>
+            <span class="pill ok">Hecho</span>
           </div>
-          <div class="bar"><div></div></div>
+          <div class="row">
+            <div>
+              <div style="font-weight:800;">2) Sellas</div>
+              <div class="muted" style="font-size:12px;margin-top:3px;">Cifrado + verificación</div>
+            </div>
+            <span class="pill safe">Seguro</span>
+          </div>
+          <div class="row">
+            <div>
+              <div style="font-weight:800;">3) Condicionas</div>
+              <div class="muted" style="font-size:12px;margin-top:3px;">Reglas de liberación</div>
+            </div>
+            <span class="pill lock">Bajo llave</span>
+          </div>
+          <div class="row">
+            <div>
+              <div style="font-weight:800;">4) Entrega</div>
+              <div class="muted" style="font-size:12px;margin-top:3px;">Fecha + condición cumplida</div>
+            </div>
+            <span class="pill">Automático</span>
+          </div>
+        </div>
+
+        <div class="meter" aria-label="Medidor de resiliencia">
+          <div class="top">
+            <div>
+              <div style="font-weight:800;">Resiliencia total</div>
+              <div class="muted" style="font-size:12px;margin-top:4px;">Redundancia + seguridad industrial</div>
+            </div>
+            <span class="pill">93%</span>
+          </div>
+          <div class="bar" aria-hidden="true"><div id="resBar"></div></div>
         </div>
       </aside>
-    </section>
+    </main>
 
-    <section class="card" id="about" style="margin-top:18px; padding:22px;">
-      <h3 style="margin:0 0 10px; font-size:18px; position:relative; z-index:1;">Sobre esta página</h3>
-      <p style="margin:0; color:var(--muted); line-height:1.7; font-size:14px; position:relative; z-index:1;">
-        Esta página está pensada para que tu profesor vea contenido real, una UI atractiva y una estructura clara.
-        Puedes cambiar el texto por cualquier tema (tienda, portafolio, app, evento). Lo importante es que el
-        pipeline de CI/CD funcione: <b>push → GitHub Actions → Surge</b>.
+    <section id="producto" class="card section" aria-label="Producto">
+      <h2>El producto</h2>
+      <p class="lead">
+        ToSend permite crear mensajes hoy y liberarlos en el futuro, incluso si el emisor ya no está disponible para enviarlos manualmente.
+        Con reglas condicionales, el mensaje solo se entrega cuando corresponde. :contentReference[oaicite:3]{index=3}
       </p>
 
-      <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap; position:relative; z-index:1;">
-        <span class="pill">✅ UI moderna</span>
-        <span class="pill">✅ Sin dependencias</span>
-        <span class="pill">✅ Rápido y ligero</span>
-        <span class="pill">✅ Listo para deploy</span>
+      <div id="como-funciona" class="split" aria-label="Cómo funciona y casos de uso">
+        <div class="mini-card">
+          <h3>Cómo funciona (en 60 segundos)</h3>
+          <ol class="list">
+            <li>Escribes tu mensaje (texto y/o archivos).</li>
+            <li>Seleccionas la fecha (hasta 100 años).</li>
+            <li>Defines reglas de liberación (“si sucede X, enviar”).</li>
+            <li>Sellas el contenido con cifrado y verificación.</li>
+            <li>ToSend custodia y entrega automáticamente cuando corresponde.</li>
+          </ol>
+        </div>
+
+        <div class="mini-card">
+          <h3>Casos de uso reales</h3>
+          <ul class="list">
+            <li><b>Legados emocionales:</b> cartas para hijos, familia o futuras generaciones.</li>
+            <li><b>Información crítica:</b> claves, documentos, instrucciones, secretos comerciales.</li>
+            <li><b>Yo del futuro:</b> decisiones, metas, mensajes motivacionales o confesiones.</li>
+            <li><b>Entrega responsable:</b> información que “aún no es el momento” de compartir.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="seguridad" class="card section" aria-label="Seguridad y arquitectura">
+      <h2>Seguridad y arquitectura</h2>
+      <p class="lead">
+        ToSend está diseñado con enfoque de “Resiliencia Total”: no promete magia, promete capas de seguridad, redundancia y protección proactiva. :contentReference[oaicite:4]{index=4}
+      </p>
+
+      <div class="split" aria-label="Controles y promesa de confianza">
+        <div class="mini-card">
+          <h3>Controles clave</h3>
+          <ul class="list">
+            <li><b>Cifrado de punto a punto:</b> solo emisor y receptor acceden al contenido.</li>
+            <li><b>MFA:</b> autenticación de múltiples factores para identidad fuerte.</li>
+            <li><b>Almacenamiento distribuido:</b> evita pérdida por falla de un solo servidor.</li>
+            <li><b>Protección proactiva:</b> detección de intrusos + protocolos actualizados.</li>
+          </ul>
+        </div>
+
+        <div class="mini-card">
+          <h3>Nuestra promesa</h3>
+          <p>
+            La confianza no es una frase: es evidencia. Por eso el producto se concibe para operar durante décadas,
+            apoyándose en proveedores cloud y ciberseguridad robusta, además de asesoría legal en herencia digital y protección de datos. :contentReference[oaicite:5]{index=5}
+          </p>
+          <div class="divider"></div>
+          <p class="muted" style="margin:0; font-size:12.5px; line-height:1.6;">
+            *Nota: esta página es una demo académica de concepto y marca (Plan de Negocios).
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="precios" class="card section" aria-label="Precios">
+      <h2>Precios simples</h2>
+      <p class="lead">
+        Modelo flexible: pago por mensaje o suscripción premium, con opciones modernas de pago. :contentReference[oaicite:6]{index=6}
+      </p>
+
+      <div class="pricing" role="list" aria-label="Planes">
+        <article class="price" role="listitem">
+          <div class="tag">
+            <span class="badge">Starter</span>
+            <span class="pill">Pago por uso</span>
+          </div>
+          <h3>Mensaje único</h3>
+          <div class="money">$4.99 <span>/ mensaje</span></div>
+          <div class="divider"></div>
+          <ul class="list">
+            <li>Programación a largo plazo</li>
+            <li>Sellado y custodia</li>
+            <li>Reglas básicas</li>
+            <li>Soporte estándar</li>
+          </ul>
+          <div style="margin-top:12px;">
+            <a class="btn btn-ghost" href="#cta">Elegir Starter</a>
+          </div>
+        </article>
+
+        <article class="price pop" role="listitem">
+          <div class="tag">
+            <span class="badge" style="border-color: rgba(45,226,230,.28);">Premium</span>
+            <span class="pill safe">Recomendado</span>
+          </div>
+          <h3>Legado inteligente</h3>
+          <div class="money">$9.99 <span>/ mes</span></div>
+          <div class="divider"></div>
+          <ul class="list">
+            <li>Mensajes ilimitados</li>
+            <li>Reglas avanzadas</li>
+            <li>Verificación reforzada</li>
+            <li>Historial y auditoría</li>
+          </ul>
+          <div style="margin-top:12px;">
+            <a class="btn btn-primary" href="#cta">Elegir Premium</a>
+          </div>
+        </article>
+
+        <article class="price" role="listitem">
+          <div class="tag">
+            <span class="badge">Business</span>
+            <span class="pill lock">Condiciones pro</span>
+          </div>
+          <h3>Custodia corporativa</h3>
+          <div class="money">A medida <span>/ contrato</span></div>
+          <div class="divider"></div>
+          <ul class="list">
+            <li>Flujos y roles</li>
+            <li>Políticas internas</li>
+            <li>Integraciones</li>
+            <li>Soporte prioritario</li>
+          </ul>
+          <div style="margin-top:12px;">
+            <a class="btn btn-ghost" href="#cta">Hablar con ventas</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="faq" class="card section" aria-label="Preguntas frecuentes">
+      <h2>Preguntas frecuentes</h2>
+      <p class="lead">
+        Respuestas rápidas sobre el concepto de ToSend: programación a largo plazo, condiciones, y confianza. :contentReference[oaicite:7]{index=7}
+      </p>
+
+      <div class="faq" aria-label="FAQ">
+        <details>
+          <summary>¿Qué pasa si la condición no se cumple?</summary>
+          <p>El mensaje permanece bajo llave digital. La entrega solo ocurre cuando se cumpla la regla definida o cuando el usuario ajuste la política de liberación (según permisos y verificación).</p>
+        </details>
+
+        <details>
+          <summary>¿Realmente puedo programar hasta 100 años?</summary>
+          <p>Ese es el concepto diferencial: permitir plazos ultra largos. La plataforma se diseña con redundancia, proveedores cloud y seguridad por capas para operar a largo plazo.</p>
+        </details>
+
+        <details>
+          <summary>¿En qué se diferencia de Gmail u opciones similares?</summary>
+          <p>Gmail tiene limitaciones de tiempo y cancelación. ToSend está pensado para décadas y añade envío condicional (reglas) como núcleo del producto.</p>
+        </details>
+
+        <details>
+          <summary>¿ToSend es una cápsula del tiempo “segura”?</summary>
+          <p>Se concibe como cápsula del tiempo inteligente: cifrado, MFA, almacenamiento distribuido y protección proactiva para reducir riesgos y aumentar confiabilidad.</p>
+        </details>
+      </div>
+    </section>
+
+    <section id="cta" class="card section" aria-label="Llamado a la acción">
+      <h2>Prueba el concepto (demo)</h2>
+      <p class="lead">Este formulario no envía datos reales: es una demo visual para tu entrega de plan de negocios y despliegue.</p>
+
+      <div class="split" aria-label="Formulario demo">
+        <div class="mini-card">
+          <h3>Crear mensaje</h3>
+          <form id="demoForm" novalidate>
+            <label style="display:block; margin-top:10px; font-size:12.5px; color:rgba(255,255,255,.78);">Para</label>
+            <input required name="to" placeholder="Ej: Mi yo del futuro"
+                   style="width:100%; margin-top:6px; padding:12px 12px; border-radius:14px; border:1px solid rgba(255,255,255,.16); background:rgba(0,0,0,.18); color:var(--text); outline:none;"/>
+
+            <label style="display:block; margin-top:12px; font-size:12.5px; color:rgba(255,255,255,.78);">Fecha de entrega</label>
+            <input required type="date" name="date"
+                   style="width:100%; margin-top:6px; padding:12px 12px; border-radius:14px; border:1px solid rgba(255,255,255,.16); background:rgba(0,0,0,.18); color:var(--text); outline:none;"/>
+
+            <label style="display:block; margin-top:12px; font-size:12.5px; color:rgba(255,255,255,.78);">Regla (condición)</label>
+            <select name="rule"
+                    style="width:100%; margin-top:6px; padding:12px 12px; border-radius:14px; border:1px solid rgba(255,255,255,.16); background:rgba(0,0,0,.18); color:var(--text); outline:none;">
+              <option>Enviar si confirmo mi identidad (MFA)</option>
+              <option>Enviar solo si marco “Listo” manualmente</option>
+              <option>Mantener bloqueado si no se valida condición</option>
+            </select>
+
+            <label style="display:block; margin-top:12px; font-size:12.5px; color:rgba(255,255,255,.78);">Mensaje</label>
+            <textarea required name="msg" rows="4" placeholder="Escribe algo que merezca llegar en el momento perfecto…"
+                      style="width:100%; margin-top:6px; padding:12px 12px; border-radius:14px; border:1px solid rgba(255,255,255,.16); background:rgba(0,0,0,.18); color:var(--text); outline:none; resize:vertical;"></textarea>
+
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+              <button class="btn btn-primary" type="submit">🔒 Sellar mensaje</button>
+              <button class="btn btn-ghost" type="reset">Limpiar</button>
+            </div>
+
+            <div id="demoAlert" role="status" aria-live="polite"
+                 style="margin-top:12px; display:none; padding:12px 12px; border-radius:16px; border:1px solid rgba(51,209,122,.28); background: rgba(51,209,122,.10); color: rgba(51,209,122,.92); font-size: 13px;">
+              ✅ Mensaje sellado (demo). En un producto real, aquí se aplicaría cifrado, verificación y custodia.
+            </div>
+          </form>
+        </div>
+
+        <div class="mini-card">
+          <h3>Resumen ejecutivo (para tu profe)</h3>
+          <ul class="list">
+            <li><b>Idea:</b> plataforma cloud para mensajes a largo plazo con reglas condicionales.</li>
+            <li><b>Valor:</b> elimina incertidumbre y garantiza entrega privada al momento exacto.</li>
+            <li><b>Público:</b> legados emocionales, información crítica, “yo del futuro”.</li>
+            <li><b>Diferencial:</b> hasta 100 años + “bajo llave” si no se cumple condición.</li>
+            <li><b>Modelo:</b> pago por mensaje o suscripción; alianzas estratégicas.</li>
+          </ul>
+          <div class="divider"></div>
+          <p class="muted" style="margin:0; font-size:12.5px; line-height:1.6;">
+            Contenido basado en el documento de “Idea de Negocio: ToSend”. :contentReference[oaicite:8]{index=8}
+          </p>
+        </div>
       </div>
     </section>
 
     <footer>
-      <div>© <span id="year"></span> • Deploy Demo • Hecho con HTML + CSS</div>
-      <div class="pill">Tip: usa dominio <b>*.surge.sh</b> para evitar DNS</div>
+      <div>© <span id="year"></span> ToSend • Demo académica • UI production-ready</div>
+      <div class="pill">Tip: para Surge, usa dominio <b>*.surge.sh</b></div>
     </footer>
   </div>
 
   <script>
+    // Smooth progress animation (resilience meter)
+    const bar = document.getElementById("resBar");
+    requestAnimationFrame(() => { bar.style.width = "93%"; });
+
+    // Year
     document.getElementById("year").textContent = new Date().getFullYear();
+
+    // Demo form interaction
+    const form = document.getElementById("demoForm");
+    const alertBox = document.getElementById("demoAlert");
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      // Basic required validation (no heavy UI, just professional feedback)
+      const data = new FormData(form);
+      const to = (data.get("to") || "").toString().trim();
+      const date = (data.get("date") || "").toString().trim();
+      const msg = (data.get("msg") || "").toString().trim();
+
+      if (!to || !date || !msg) {
+        alertBox.style.display = "block";
+        alertBox.style.borderColor = "rgba(255,204,102,.35)";
+        alertBox.style.background = "rgba(255,204,102,.10)";
+        alertBox.style.color = "rgba(255,204,102,.95)";
+        alertBox.textContent = "⚠️ Completa los campos requeridos para sellar el mensaje (demo).";
+        return;
+      }
+
+      alertBox.style.display = "block";
+      alertBox.style.borderColor = "rgba(51,209,122,.28)";
+      alertBox.style.background = "rgba(51,209,122,.10)";
+      alertBox.style.color = "rgba(51,209,122,.92)";
+      alertBox.textContent = "✅ Mensaje sellado (demo). En un producto real, aquí se aplicaría cifrado, verificación y custodia.";
+      form.reset();
+    });
   </script>
 </body>
 </html>
